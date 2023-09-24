@@ -103,3 +103,78 @@ export default function App() {
 #### 3. Specifying a fallback default value
 > fallback 기본값 지정하기
 
+1. 부모 트리에서 특정 context의 provider들을 찾을 수 없는 경우
+	useContext()가 반환하는 context 값은 해당 context를 생성했을 때 지정한 기본값과 동일.
+```jsx
+const ThemeContext = createContext(null);
+```
+2. default value는 절대 변경되지 않는다.
+	context를 업데이트 하려면 state를 사용한다.
+
+
+#### 4. Overriding context for a part of the tree
+> 트리 일부에 대한 context 재정의하기
+
+트리의 일부분을 다른 값의 provider로 감싸 해당 부분에 대한 context를 재정의할 수 있다.
+```jsx
+<ThemeContext.Provider value="dark">  
+	...
+	<ThemeContext.Provider value="light">  // 여기부터
+		<Footer />  
+	</ThemeContext.Provider>  // 여기까지
+	...  
+</ThemeContext.Provider>
+```
+필요한 만큼 provider들을 중첩하고 재정의할 수 있다.
+
+#### 5. Optimizing re-renders when passing objects and functions
+> 객체 및 함수 전달 시 리렌더링 최적화
+
+context를 통해 **객체**와 **함수**를 포함한 **모든 값**을 전달할 수 있다.
+
+아래 코드에서 `MyApp`이 리렌더링할 때마다 *다른 함수*를 가리키는 *다른 객체*가 되므로 `useContext(AuthContext)`를 호출한 트리 깊숙한 곳의 모든 컴포넌트도 리렌더링해야 한다.
+
+소규모의 경우 문제가 되지 않겠지만, 성능 최적화를 위해 *함수는 `useCallback`*, *객체는 `useMemo`* 로 감싸면 된다.
+
+```jsx
+function MyApp() {
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const login = (response) => {
+    storeCredentials(response.credentials);
+    setCurrentUser(response.user);
+  };
+  
+  return (
+    <AuthContext.Provider value={{ currentUser, login }}>
+      <Page />
+    </AuthContext.Provider>
+  );
+}
+```
+아래와 같이 바꿔준다.
+
+```jsx
+import { useCallback, useMemo } from 'react';
+
+function MyApp() {
+	const [currentUser, setCurrentUser] = useState(null);
+	
+	const login = useCallback((response) => {
+		storeCredentials(response.credentials);
+		setCurrentUser(response.user);
+	}, []);
+	
+	const contextValue = useMemo(() => {
+		currentUser,
+		login
+	}), [currentUser, login]);
+	
+	return (
+		<AuthContext.Provider value={contextValue}>
+		  <Page />
+		</AuthContext.Provider>
+	);
+}
+```
+`MyApp` 이 리렌더링해야 하는 경우에도 `currentUser`가 변경되지 않는 한, `useContext(AuthProvider)`를 호출하는 컴포넌트는 리렌더링할 필요가 없다.
