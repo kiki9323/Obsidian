@@ -18,17 +18,21 @@
 	* creating context
 
 ---
-#### flow summary
-일반적으로 상위 컴포넌트에서 `SomeContext.Provider` 를 사용해 컨텍스트 값을 **지정**하고,
-하위 컴포넌트에서 `useContext(SomeContext)`를 호출해 컨텍스트 값을 **읽는다**.
-- SomeContext.Consumer 또한 컨텍스트 값을 *읽는 또다른 방법*이다. (거의 쓰지 않는다.)
+#### flow summary
+일반적으로 상위 컴포넌트에서 `SomeContext.Provider` 를 사용해 컨텍스트 값을 **지정**하고,  
+하위 컴포넌트에서 `useContext(SomeContext)`를 호출해 컨텍스트 값을 **읽는다**.  
+- SomeContext.Consumer 또한 컨텍스트 값을 *읽는 또다른 방법*이다. (거의 쓰지 않는다.). 
 
 `createContext`를 사용하면 컴포넌트가 제공하거나 읽을 수 있는 컨텍스트를 만들 수 있다.
 ```jsx
 const SomeContext = createContext(defaultValue);
 ```
 
+
+
 ---
+
+
 
 ## 1. Reference
 ### 1. [생성] createContext(defaultValue)
@@ -42,8 +46,9 @@ export const AuthContext = createContext(null);
 
 #### 파라미터 (매개변수)
 `defaultValue`
-	* 컨텍스트를 읽는 컴포넌트 상위 트리에 일치하는 컨텍스트 provider가 없을 때 이 컨텍스트가 갖을 값이다. 
-	* 의미 있는 기본 값이 없다면 `null` 지정.
+
+* 컨텍스트를 읽는 컴포넌트 상위 트리에 일치하는 컨텍스트 provider가 없을 때 이 컨텍스트가 갖을 값이다.   
+* 의미 있는 기본 값이 없다면 `null` 지정.  
 
 #### 반환값
 * `createContext()`는 **컨텍스트 객체**를 반환한다.
@@ -67,9 +72,10 @@ function App() {
 
 #### Props
 `value`
-	* provider 내에서 이 컨텍스트를 읽는 모든 컴포넌트에 전달하려는 값이다.
-	* 깊이에 상관없이 전달할 수 있다. 
-	* provider 내부에서 useContext(SomeContext)를 호출하는 컴포넌트는 그 위에 있는 가장 가까운 컨텍스트 provider의 value를 받게된다.
+
+* provider 내에서 이 컨텍스트를 읽는 모든 컴포넌트에 전달하려는 값이다.  
+* 깊이에 상관없이 전달할 수 있다.   
+* provider 내부에서 useContext(SomeContext)를 호출하는 컴포넌트는 그 위에 있는 가장 가까운 컨텍스트 provider의 value를 받게된다.  
 
 
 
@@ -157,8 +163,8 @@ function App() {
 ##### Recap
 1. `export const MyContext = createContext(defaultValue)` 컨텍스트를 생성한다. 파일은 따로 `context`폴더 하나 만들어서 생성하여 export 한다.
 2. state값을 변경할 수 있는 상위 컴포넌트에서 생성한 컨텍스트를 `<SomeContext.Provider value={...}>` 로 감싸준다.
-3. 굳이 프롭스로 드릴링 할 필요 없으니, 필요한 곳(하위 컴포넌트)에서 `useContext(MyContext)` hook에 MyContext를 전달하여 원하는 대로 모든 하위 컴포넌트에서 읽을 수 있게 사용하면 된다.
-=> 위에 위치한 컨텍스트를 파악하게 되기 때문.
+3. 굳이 프롭스로 드릴링 할 필요 없으니, 필요한 곳(하위 컴포넌트)에서 `useContext(MyContext)` hook에 MyContext를 전달하여 원하는 대로 모든 하위 컴포넌트에서 읽을 수 있게 사용하면 된다. 
+	=> 위에 위치한 컨텍스트를 파악하게 되기 때문.
 
 ##### context? 마치 css의 property inheritance(속성 상속) 같다!
 재정의 하지 않는 이상 특정 DOM안에 있는 모든 DOM 노드는 아무리 깊어도 css 속성을 상속 받는다.

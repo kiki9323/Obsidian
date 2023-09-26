@@ -1,0 +1,23 @@
+# State 관리
+## reducer 와 context 확장하기
+
+---
+## Index
+* [1] **1. reducer + context 결합 방법**
+* [2] **2. State와 dispatch 함수를 props으로 전달하지 않는 방법**
+* [3] **3. context와 state 로직을 별도의 파일에서 관리하는 방법**
+
+---
+#### flow summary
+* Reducer: Reducer를 사용하면 컴포넌트의 state 업데이트 로직을 통합할 수 있다. 
+* Context: Context를 사용하면 다른 컴포넌트들에 정보를 전달할 수 있다. 
+* Reducer + Context:  Reducer와 Context를 함께 사용하면 복잡한 화면의 state를 관리할 수 있다.
+
+## Combining a reducer with context
+> reducer와 context 결합하기
+
+- 리듀서를 사용하면 이벤트 핸들러를 간결하고 명확하게 만들 수 있다.
+-
+
+
+https://velog.io/@velopert/using-redux-in-2021
