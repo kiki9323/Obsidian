@@ -1,4 +1,5 @@
 # Obsidian
+
 ## Introduction
 
 이 저장소는 옵시디언(Obsidian)과 깃허브(GitHub)를 활용하여 개인 학습 내용을 관리하기 위한 공간입니다.   
@@ -31,3 +32,6 @@
 (...)
 
 ```
+
+[예전 tistory](https://kiki14.tistory.com/)
+
