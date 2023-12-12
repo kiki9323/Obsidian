@@ -1,194 +1,176 @@
-### 타입 호환성
-타입 호환성은 타입간의 **슈퍼-서브 관계**를 기준으로 판단 됨
 
-* 업 캐스팅 - 가능
-* 다운 캐스팅 - 불가능 (예외는 있으나 대부분은 불가능)
+![](https://i.imgur.com/5eNXUXB.jpg)
+### Any, Unknown
+타입스크립트에서 지원해주는 독특한 타입
 
 ```ts
-a: number = -12; // Number 타입
-b: 30 = 30; // Number 리터럴 타입
+// any -> 어떤 타입이던지 허용 가능
+// 특정 변수의 타입을 우리가 확실히 모를 때
 
-a = b; // 업 캐스팅 - 가능 (Number 타입 <- Number 리터럴)
-b = a; // 다운 캐스팅 - 불가능 (Number 리터럴 <- Number 타입)
-```
+let anyVar: any = 10;
+anyVar = "hello";
 
-### 타입 계층도와 함께 특수한 타입들 이해하기
-![[Snipaste_2023-12-08_13-57-14.png|600]]
+anyVar = true;
+anyVar = {};
+anyVar = () => {};
 
-#### 1. Unknown 타입 (전체 집합)
-모든 타입의 슈퍼 타입
-##### 성질
-모든 타입의 값을 저장할 수 있다.
-* 업 캐스팅 연산 가능
-```ts
-let a: unknown = 1;
-let b: unknown = "hello";
-let c: unknown = true;
-let d: unknown = null;
-let e: unknown = undefined;
-let f: unknown = [];
-let g: unknown = {};
-let h: unknown = () => {};
-```
+anyVar.toUpperCase();
+anyVar.toFixed();
 
-반대로, 어떤 타입의 변수에도 저장할 수 없다.
-* 다운 캐스팅 연산 불가능
-```ts
+  
+let num: number = 10;
+num = anyVar;
+
+// 할당 받을 수 있고 할당 할 수도 있다.
+// 그러나 컴파일 에러가 아닌 런타임 에러를 뿜기 때문에 타스의 장점을 활용하지 못한다.
+
+
+// unknown
 let unknownVar: unknown;
 
-let num: number = unknownVar; // - ERROR
-let str: string = unknownVar; // - ERROR
-let bool: string = unknownVar; // - ERROR
-let obj: string = unknownVar; // - ERROR
-let func: string = unknownVar; // - ERROR
-```
+unknownVar = "";
+unknownVar = 1;
+unknownVar = () => {};
 
-##### 언제 사용할 수 있나요?
-* 현재 정확한 타입을 알기 어려울 때 사용 
-* **타입 좁히기**와 함께 값을 유연하게 사용 가능 [ts playground](https://www.typescriptlang.org/ko/play?#code/GYVwdgxgLglg9mABMOcAUA3AhgGxAUwC5FwBrMOAdzAEpEBvAKEURmETSgE8AHfOdtjz5EAXnGIA5GBABbAEb4ATpLpMWLJfigglSIQQB0UOADEYAD3wATNDQDczRAF9E+HAGcRbDtz4DEAxFxUSkPKCUYMABzVQYnTW1dfVwjEwAZOAhcfEzKZQBhLC87RxZXdy94jUQtHT1A1PwnZ0ZWxhR0AEYHDtQ0SQALdxw4VUdOtHBrfGAomxogA)
-```ts
-// 어떠한 값을 넣어도 문제가 되지 않으니 타입 좁히기와 함께 사용하여 유연하게 사용한다.
+// any와는 다르게 할당은 불가능하다.
+num = unknownVar; // 'unknown' 형식은 'number' 형식에 할당할 수 없습니다.
+unknownVar.toUpperCase(); // 'unknownVar'은(는) 'unknown' 형식입니다.
 
-function foo(value: unknown) {
-  if (typeof value === 'number') {
-    return value.toFixed();
-  } else if (typeof value === 'string') {
-    return value.toLocaleLowerCase();
-  } else {
-    return value
-  }
-}
-
-foo(1);
-foo('hello');
-foo(undefined);
-```
-
-#### 2. Never 타입 (공집합)
-##### 성질
-* 계층도의 최하위 존재. 모든 타입의 서브 타입.
-* 모든 타입의 변수에도 저장할 수 있다.
-	* 즉, 모든 타입의 업 캐스팅이 가능
-```ts
-let neverVar: never;
-
-let never1: number = neverVar;
-let never2: string = neverVar;
-let never3: boolean = neverVar;
-let never4: null = neverVar;
-let never5: undefined = neverVar;
-let never6: [] = neverVar;
-let never7: {} = neverVar;
-```
-
-Never 타입에는 어떠한 값도 저장할 수 없다. 
-* 다운 캐스팅 불가능
-```ts
-let never1: never = 1; // - ERROR
-let never2: never = 'hello'; // - ERROR
-let never3: never = true; // - ERROR
-let never4: never = null; // - ERROR
-let never5: never = undefined; // - ERROR
-let never6: never = []; // - ERROR
-let never7: never = {}; // - ERROR
-let never8: never = () => {}; // - ERROR
-```
-
-##### 언제 사용할 수 있나요?
-* 호출되지 않아야 하는 함수를 만들 때 
-* Switch의 완전성을 보장할 때 활용할 수 있다 - `Exhaustiveness Checking`
-
-예시 `Exhaustiveness Checking`
-```ts
-// 호출시 오류가 발생하는 함수
-// - Switch의 완전성을 보장할 때 활용할 수 있다.
-
-// 불완전한 switch 문
-function error(v: never) {
-    throw new Error();
-}
-
-type Color = "RED" | "GREEN" | "BLUE";
-
-function getColorName(c: Color) {
-    switch(c) {
-        case "RED": // 타입 좁히기
-            return "rgb(255,0,0)";
-        case "GREEN": // 타입 좁히기에 의해서 type Color = "GREEN" | "BLUE";
-            return "rgb(0,255,0)";
-        default: { // 타입 좁히기에 의해서 type Color = "BLUE";는 문자열인데? 
-            return error(c); // 이때 오류가 발생하게 된다.
-        }
-    }
+if (typeof unknownVar === "number") { // 이런식으로 타입 좁히기를 활용
+	num = unknownVar;
 }
 ```
+### Void, never
 
 ```ts
-// 안전성이 보장된 switch
-function error(v: never) {
-    throw new Error();
+// void
+// 아무것도 없음을 의미하는 타입
+
+function func1(): string {
+	return "hello!";
 }
 
-type Color = "RED" | "GREEN" | "BLUE";
+function func2(): void {
+	console.log("hi~~");
+}
 
-function getColorName(c: Color) {
-    switch(c) {
-        case "RED": // 타입 좁히기
-            return "rgb(255,0,0)";
-        case "GREEN": // 타입 좁히기에 의해서 type Color = "GREEN" | "BLUE";
-            return "rgb(0,255,0)";
-        case "BLUE": // 타입 좁히기에 의해서 type Color = "BLUE";
-        	return "rgb(0,0,255)";
-        default: { // swtich문의 안전성을 보장해준다.
-            return error(c); 
-        }
-    }
+// never
+// 불가능한 타입
+
+function func3(): never {
+	while (true) {
+		// ...
+	}
+}
+
+function func4(): never {
+	throw new Error();
+}
+
+  
+let anyVar = any;
+
+let a: never;
+a = 1; // - error
+a = {}; // - error
+a = ""; // - error
+a = undefined; // - error
+a = null; // - error
+a = anyVar; // - error
+
+// never는 그 어떤 값도 받을 수 없다.
+```
+### 타입스크립트 이해하기
+1. 어떤 기준으로 타입을 정의하는가?
+2. 어떤 기준으로 타입간의 관계를 정의하는가?
+3. 어떤 기준으로 타입의 오류를 검사하는가?
+
+에 대한 기준을 명확히 하는 것을 목표로 한다.
+### 타입은 집합이다
+타입스크립트의 **타입은 집합**이다.  
+**집합**? 동일한 속성을 갖는 요소 원소를 하나로 묶는 단위를 말한다.
+
+
+```ts
+/**
+* Unknown 타입
+* - 모든 타입의 슈퍼 타입
+*/
+
+function unknownExam() {
+	// 업 캐스팅 가능
+	let a: unknown = 1;
+	let b: unknown = "hi";
+	let c: unknown = true;
+	let d: unknown = null;
+	let e: unknown = undefined;
+	
+	let unknownVar: unknown;
+	
+	// // 다운 캐스팅 불가능
+	// let num: number = unknownVar;
+	// let str: string = unknownVar;
+	// let bool: boolean = unknownVar;
+}
+
+
+/**
+* never 타입
+* - 모든 타입의 서브 타입
+*/
+
+function neverExam() {
+	function neverFunc(): never {
+		while (true) {
+			//...
+		}
+	}
+	
+	// 업 캐스팅 가능
+	let num: number = neverFunc();
+	let str: string = neverFunc();
+	let bool: boolean = neverFunc();
+	
+	// 다운 캐스팅 불가능
+	let never1: never = 10; // 'number' 형식은 'never' 형식에 할당할 수 없습니다.
+	let never2: never = "string"; // 'string' 형식은 'never' 형식에 할당할 수 없습니다.
+	let never3: never = true; // 'boolean' 형식은 'never' 형식에 할당할 수 없습니다.
+	let never4: never = undefined; // 'undefined' 형식은 'never' 형식에 할당할 수 없습니다.
+}
+
+/**
+* void 타입
+* - undefined의 슈퍼 타입
+*/
+
+function voidExam() {
+	function voidFunc(): void {
+		console.log("hi~");
+	return undefined;
+}
+
+let voidVar: void = undefined;
+}
+
+  
+/**
+* any 타입
+* - 타입 계층도를 완전히 무시한다.
+* - 모든 타입의 슈퍼타입, never를 제외한 서브타입 이기도 하다.
+*/
+
+function anyExam() {
+	let unknownVar: unknown;
+	let anyVar: any;
+	let undefinedVar: undefined;
+	let neverVar: never;
+	
+	anyVar = unknownVar;
+	undefinedVar = anyVar;
+	neverVar = anyVar; // 예외. never 타입은 불가
 }
 ```
 
-#### 3. Any 타입 (치트키)
-##### 성질
-* 타입 검사를 **받지 않음**
-* 모든 타입의 슈퍼 타입, 서브 타입 처럼 동작한다.
+### 타입 계층도와 함께 기본타입 살펴보기
 
-##### 예외
-그러나, Never 타입의 변수에는 저장할 수 없다. (Never는 공집합 이므로)
-```ts
-let anyVar: any;
-let _never: never = anyVar; // - Error
-```
-
-
-##### 언제 any를 사용하나?
-* **불가능한 타입 단언**을 가능케 할 수 있음.
-```ts
-// Not works
-let str1: string = 10 as string; // number -> string 단언 불가
-```
-
-> 타입 단언은 "단언 이전"과 "단언 이후"의 타입들이 서로 겹치는 타입이어야만 한다. 
-> 즉, super-sub 관계를 가져야한다.
-
-`any`를 통해 이를 해결할 수 있다.
-```ts
-// Works!
-let str2: string = 10 as any as string; // number -> any -> string
-
-// 사실 unkwnon 도 가능 ㅋㅋ
-let str3: string = 10 as unkwnon as string; // number -> unkwnon -> string
-
-// 호호 never 도 가능 ㅋㅋ (super-sub 관계만 지키면 된다.)
-let str4: string = 10 as never as string; // number -> unkwnon -> string
-```
-
-
-
-#### 퀴즈퀴즈
-* A, B, C, D는 각각 어떤 타입으로 추론될까욤?
-```ts
-type A = never & string; // never (A 교 공집합 = 공집합)
-type B = never | string; // string (A 합 공집합 = A)
-type C = unknown & string; // string (A 교 전체집합 = A)
-type D = unknown | string; // unknown (A 합 전체집합 = 전체집합)
-```
-
+![](https://i.imgur.com/s0BFQLA.jpg)
